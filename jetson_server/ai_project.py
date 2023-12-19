@@ -8,7 +8,7 @@ from dataset import ImageClassificationDataset
 import paho.mqtt.client as mqtt
 import time
 
-MQTT_HOST = 'xxx.xxx.xxx.xxx'
+MQTT_HOST = '192.168.240.22'
 MQTT_PASSWORD = 'mqtt_password'
 MQTT_USER = 'mqtt_user'
 MQTT_CLIENT = 'game' 
