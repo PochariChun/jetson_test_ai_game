@@ -2,6 +2,7 @@
 Copy `game_mode_2.pth` to `~/nvdli-data/classification` folder<br>
 Copy `ai_project.py`, `dataset.py`, `utils.py` to `~/nvdli-data` folder<br>
 <br>
+## original run style
  Run docker from course
  ```
  sudo docker run --runtime nvidia -it --rm --network host \
@@ -9,6 +10,7 @@ Copy `ai_project.py`, `dataset.py`, `utils.py` to `~/nvdli-data` folder<br>
  --device /dev/video0 \
  nvcr.io/nvidia/dli/dli-nano-ai:v2.0.1-r32.5.0 \
  ```
+
  
  Install paho-mqtt
  ```
@@ -24,7 +26,16 @@ MQTT_USER = 'mqtt_user'
  ```
  python3 ai_project.py
  ```
-
+## build dockfile my own
+use docker file to build image 'ai_game'
+ ```
+ docker build -t ai_game .
+ ```
+Then, run a container from this image using a simplified command:
+```
+docker run --runtime nvidia -it --rm --network host ai_game
+```
+This will start a container with jieba, paho-mqtt, and the necessary aliases already set up.
 
 # game client
 ![game](https://github.com/namoaton/jetson_test_ai_game/raw/main/images/game.png)
