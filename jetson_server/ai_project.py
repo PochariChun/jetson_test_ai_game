@@ -1,16 +1,17 @@
 from jetcam.usb_camera import USBCamera
 import torch
 import torchvision
-from utils import preprocess
 import torch.nn.functional as F
 import torchvision.transforms as transforms
-from dataset import ImageClassificationDataset
 import paho.mqtt.client as mqtt
 import time
+from src.utils import preprocess
+from src.dataset import ImageClassificationDataset
 
-MQTT_HOST = '192.168.240.22'
-MQTT_PASSWORD = 'mqtt_password'
-MQTT_USER = 'mqtt_user'
+# MQTT_HOST = '192.168.240.22'
+MQTT_HOST = '192.168.100.100'
+MQTT_PASSWORD = 'student'
+MQTT_USER = 'student'
 MQTT_CLIENT = 'game' 
 MQTT_TOPIC = '/game'
 

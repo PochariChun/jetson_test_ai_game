@@ -1,8 +1,18 @@
-from src.utils import preprocess
 import paho.mqtt.client as mqtt
+from jetcam.usb_camera import USBCamera
+import torch
+import torchvision
+import torch.nn.functional as F
+import torchvision.transforms as transforms
+import time
+import threading
+
+
+from src.utils import preprocess
+from src.dataset import ImageClassificationDataset
 
 def main():
-    MQTT_HOST = '192.168.240.22'
+    MQTT_HOST = '192.168.100.100'
     MQTT_PASSWORD = 'student'
     MQTT_USER = 'student'
     MQTT_CLIENT = 'game' 
@@ -11,7 +21,6 @@ def main():
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
             client.connected_flag = True
-            #client.subscribe("/game")
             print("Connected with code %d" % rc)
 
     mqtt_client = mqtt.Client(MQTT_CLIENT)

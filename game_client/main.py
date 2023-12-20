@@ -5,10 +5,10 @@ from Missile import Missile
 from Enemy import Enemy
 import paho.mqtt.client as mqtt
 
-MQTT_HOST = 'xxx.xxx.xxx.xxx'
-MQTT_PASSWORD = 'mqtt_password'
-MQTT_USER = 'mqtt_user'
-MQTT_CLIENT = 'game_client'
+MQTT_HOST = '192.168.100.100'
+MQTT_PASSWORD = 'student'
+MQTT_USER = 'student'
+MQTT_CLIENT = 'game' 
 MQTT_TOPIC = '/game'
 
 

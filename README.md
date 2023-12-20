@@ -2,7 +2,7 @@
 Copy `game_mode_2.pth` to `~/nvdli-data/classification` folder<br>
 Copy `ai_project.py`, `dataset.py`, `utils.py` to `~/nvdli-data` folder<br>
 <br>
-## original run style
+## original setup
  Run docker from course
  ```
  sudo docker run --runtime nvidia -it --rm --network host \
@@ -27,13 +27,23 @@ MQTT_USER = 'mqtt_user'
  python3 ai_project.py
  ```
 ## build dockfile my own
-use docker file to build image 'ai_game'
+create folder for DockerFile
  ```
- docker build -t ai_game .
+mkdir build
+cd build
+cp ../Dockerfile .
+ ```
+
+use docker file to build image 'ai_game:v1'
+ ```
+ docker build -t ai_game ./
  ```
 Then, run a container from this image using a simplified command:
 ```
-docker run --runtime nvidia -it --rm --network host ai_game
+ sudo docker run --runtime nvidia -it --rm --network host \
+ --volume ~/nvdli-data:/nvdli-nano/data \
+ --device /dev/video0 \
+ ai_game:v1 
 ```
 This will start a container with jieba, paho-mqtt, and the necessary aliases already set up.
 

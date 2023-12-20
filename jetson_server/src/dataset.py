@@ -12,15 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import torch
-import torch.utils.data
-import glob
-import PIL.Image
-import subprocess
-import cv2
-import os
-import uuid
-import subprocess
 
 
 class ImageClassificationDataset(torch.utils.data.Dataset):
