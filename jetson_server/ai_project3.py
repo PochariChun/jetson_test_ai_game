@@ -6,10 +6,8 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 import time
 import threading
-
-
-from src.utils import preprocess
-from src.dataset import ImageClassificationDataset
+from utils import preprocess
+from dataset import ImageClassificationDataset
 
 def main():
     MQTT_HOST = '192.168.100.100'

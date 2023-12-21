@@ -8,7 +8,7 @@ import paho.mqtt.client as mqtt
 MQTT_HOST = '192.168.100.100'
 MQTT_PASSWORD = 'student'
 MQTT_USER = 'student'
-MQTT_CLIENT = 'game' 
+MQTT_CLIENT = 'game_client' 
 MQTT_TOPIC = '/game'
 
 
