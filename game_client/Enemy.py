@@ -13,9 +13,9 @@ class Enemy(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         game_folder = os.path.dirname(__file__)
         img_folder = os.path.join(game_folder, 'img')
-        player_img = pygame.image.load(os.path.join(img_folder, 'enemy.png')).convert()
-        player_img = pygame.transform.rotate(player_img, 180)
-        player_img = pygame.transform.scale(player_img, (50, 50))
+        player_img = pygame.image.load(os.path.join(img_folder, '123.png')).convert()
+        player_img = pygame.transform.rotate(player_img, 0)
+        player_img = pygame.transform.scale(player_img, (70, 70))
         self.image = player_img
         transColor = self.image.get_at((0, 0))
         self.image.set_colorkey(transColor)
