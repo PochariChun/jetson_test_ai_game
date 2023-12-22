@@ -12,8 +12,8 @@ class Missile(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         game_folder = os.path.dirname(__file__)
         img_folder = os.path.join(game_folder, 'img')
-        player_img = pygame.image.load(os.path.join(img_folder, 'missile.png')).convert()
-        # player_img = pygame.transform.scale(player_img, (50, 50))
+        player_img = pygame.image.load(os.path.join(img_folder, '雪球.png')).convert()
+        player_img = pygame.transform.scale(player_img, (20, 20))
         self.image = player_img
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
