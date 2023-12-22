@@ -44,9 +44,9 @@ xhost +
  sudo docker run --runtime nvidia -it --rm --network host \
  -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY \
  --volume ~/nvdli-data:/nvdli-nano/data \
- --device /dev/video1 \
+ --device /dev/video0 \
  --privileged \
- ai_game:v4
+ ai_game:v1
 ```
 This will start a container with jieba, paho-mqtt, and the necessary aliases already set up.
 
