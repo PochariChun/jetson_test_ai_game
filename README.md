@@ -40,12 +40,13 @@ use docker file to build image 'ai_game:v1'
  ```
 Then, run a container from this image using a simplified command:
 ```
+xhost +
  sudo docker run --runtime nvidia -it --rm --network host \
+ -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY \
  --volume ~/nvdli-data:/nvdli-nano/data \
- --device /dev/video0 \
+ --device /dev/video1 \
  --privileged \
  ai_game:v4
-
 ```
 This will start a container with jieba, paho-mqtt, and the necessary aliases already set up.
 
