@@ -1,3 +1,4 @@
+
 import os
 import pygame
 from Player import Player
@@ -5,95 +6,197 @@ from Missile import Missile
 from Enemy import  Enemy
 from Enemy import  Bullet
 import paho.mqtt.client as mqtt
+import threading
+import jieba
+import cv2
+import mediapipe as mp
+import math
+
+text = None
+should_continue = True
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
+mp_hands = mp.solutions.hands
 
 
-
-
-
-# MQTT_HOST = '192.168.240.22'
-# MQTT_PASSWORD = 'student'
-# MQTT_USER = 'student'
-# MQTT_CLIENT = 'game_client'
-# MQTT_TOPIC = '/game'
-
-
-# """on_connect 函數
-
-# 當 MQTT 客戶端成功連接到伺服器時，該函數被調用。
-# rc 參數是連接結果碼，0 表示連接成功。
-# 如果連接成功，函數將客戶端的 connected_flag 設為 True，並讓客戶端訂閱特定主題（在這裡是 "/game"）。
-# """
-
-# def on_connect(client, userdata, flags, rc):
-#     if rc == 0:
-#         client.connected_flag = True
-#         client.subscribe("/game")
-#         print("Connected with code %d" % rc)
-
-# """on_message 回調函數
-
-# 當 MQTT 客戶端接收到來自訂閱主題的消息時，該函數被調用。
-# 函數首先打印接收到的消息的主題和內容。
-# 根據接收到的消息內容（例如 'move_left'、'move_right'、'stop'、'launch_missile'），函數將創建相應的 Pygame 事件，並將這些事件發送到 Pygame 的事件隊列中。
-# """
-# def on_message(client, userdata, message):
-#     # time.sleep(1)
-#     print("Topic: " + str(message.topic))
-#     print("Message: " + str(message.payload))
-#     print("received message =", str(message.payload.decode("utf-8")))
-#     print(str(message.topic))
-        
-#     if str(message.topic) == "/game":       
-#         # 影像辨識部分
-       
-#         if str(message.payload.decode("utf-8")) == 'move_left':
-#             mqtt_event = pygame.event.Event(pygame.KEYDOWN, {'unicode': '', 'key': 1073741904, 'mod': 4096, 'scancode': 80, 'window': None})
-#             pygame.event.post(mqtt_event)
-#         if str(message.payload.decode("utf-8")) == 'move_right':
-#             mqtt_event = pygame.event.Event(pygame.KEYDOWN, {'unicode': '', 'key': 1073741903, 'mod': 4096, 'scancode': 79, 'window': None})
-#             pygame.event.post(mqtt_event)
-#         if str(message.payload.decode("utf-8")) == 'stop':
-#             mqtt_event = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_s)
-#             pygame.event.post(mqtt_event)
-#         if str(message.payload.decode("utf-8")) == 'launch_missile':
-#             mqtt_event = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE)
-#             pygame.event.post(mqtt_event)
-
-#     if str(message.topic) == "/game2":                    
-#         # 語音辨識部分     
+def voice_translate(r,audio,stopwords,coding_syntax,learning_environment,project_assignment):
+    global text
+    # 修改使用jieba進行斷詞的函數
+    def cut_words(sentence):
+        return jieba.cut(sentence, cut_all=False)
+    def calc_classification(word_sentence_list):
+        ret_cs = []
+        ret_le = []
+        ret_pa = []
+        other = []
+        for word in word_sentence_list:
+            if word not in stopwords:
+                ### eliminate stopsword
+                if word in coding_syntax:
+                    ret_cs.append(word)
+                elif word in learning_environment:
+                    ret_le.append(word)
+                elif word in project_assignment:
+                    ret_pa.append(word)
+                else:
+                    other.append(word)
             
-#         if str(message.payload.decode("utf-8")) == '左邊':
-#             mqtt_event = pygame.event.Event(pygame.KEYDOWN, {'unicode': '', 'key': 1073741904, 'mod': 4096, 'scancode': 80, 'window': None})
-#             pygame.event.post(mqtt_event)
-            
-#         if str(message.payload.decode("utf-8")) == '右邊':
-#             mqtt_event = pygame.event.Event(pygame.KEYDOWN, {'unicode': '', 'key': 1073741903, 'mod': 4096, 'scancode': 79, 'window': None})
-#             pygame.event.post(mqtt_event)
-            
-#         if str(message.payload.decode("utf-8")) == '停止':
-#             mqtt_event = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_s)
-#             pygame.event.post(mqtt_event)
-            
-#         if str(message.payload.decode("utf-8")) == '發射':
-#             mqtt_event = pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE)
-#             pygame.event.post(mqtt_event)
+        return ret_cs , ret_le , ret_pa , other
+    try:
+        # 在新线程中进行语音识别
+        print('開始翻譯.....')
+        text = r.recognize_google(audio, language='zh-TW')
+        print('结果：', text)
+        # 这里可以添加更多处理识别结果的逻辑
+                        
+                
+        cs, le, pa, ot = calc_classification(list(cut_words(text)))
+                
+        print('原句：', text)
+        print('coding_syntax:', cs)
+        print('learning_environment:', le)
+        print('project_assignment:', pa)
+        print('其他詞語:', ot)
+                
+        clear_counter += 1
+        if clear_counter == 10:
+            clear_counter = 0
+            os.system('clear')
+                
+        if '退出' in text:
+            should_continue = False  # 更新变量来通知主循环停止
 
-# """
-# 設置和啟動 MQTT 客戶端
+    except Exception as e:
+        print('Error:', e)
 
-# 創建一個 MQTT 客戶端實例。
-# 使用用戶名和密碼設置客戶端。
-# 將 on_connect 和 on_message 函數指定為連接和消息處理的回調函數。
-# 客戶端連接到指定的 MQTT 伺服器（MQTT_HOST、port、keepalive）。
-# 啟動一個循環，以持續監聽來自伺服器的消息。
-# """
+def voice_recognition():
+    global text
+    import csv
+    import os
+    import sys
+    import jieba
+    import speech_recognition as sr
 
-# mqtt_client = mqtt.Client(MQTT_CLIENT)
-# mqtt_client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
-# mqtt_client.on_connect = on_connect
-# mqtt_client.on_message = on_message
-# mqtt_client.connect(MQTT_HOST, port=1883, keepalive=600)
-# mqtt_client.loop_start()
+    # Read ontology_words from CSV file
+    coding_syntax = []
+    learning_environment = []
+    project_assignment = []
+    all_words_for_jieba = []
+
+    #close system warning
+    os.close(sys.stderr.fileno())
+
+    first_row = False
+    with open('ontology_words.csv','r',encoding="utf-8-sig") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if(first_row):
+                if(row[0] != ''):
+                    coding_syntax.append(row[0])
+                if(row[1] != ''):
+                    learning_environment.append(row[1])
+                if(row[2] != ''):
+                    project_assignment.append(row[2])
+            if(first_row == False):
+                first_row = True
+                
+    print('coding_syntax：' + str(len(coding_syntax)) ,
+        '\nlearning_environment：' + str(len(learning_environment)) , 
+        '\nproject_assignment：' + str(len(project_assignment)))
+
+    # 將 ontology 的詞加入 jieba 的字典
+    for word in all_words_for_jieba:
+        jieba.add_word(word, freq=100)
+
+
+
+    # Read stop words
+    stopwords = []
+    file = open('stop_word.txt', encoding='utf-8-sig').readlines()   
+    for lines in file:
+        stopwords.append(lines.strip())
+    print('stopwords讀取完成一共'+ str(len(stopwords)) + '筆')
+
+    
+
+    #from IPython.display import clear_output  ##用來清理一下output
+    clear_counter = 0
+    r = sr.Recognizer()
+
+    while should_continue:
+        try:
+            with sr.Microphone() as source:
+                print('請開始說話')
+                r.adjust_for_ambient_noise(source)
+                audio = r.listen(source, phrase_time_limit=1)
+                threading.Thread(target=voice_translate, args=(r,audio,stopwords,coding_syntax,learning_environment,project_assignment), daemon=True).start()
+                print('Global原句：', text)
+
+        except:
+            print('Error!')
+            clear_counter += 1
+            if clear_counter == 10:
+                clear_counter = 0
+                os.system('clear')
+
+
+
+def hand_recognition():
+    global text
+    import cv2
+    import mediapipe as mp
+    import math
+    cap = cv2.VideoCapture(0)            # 讀取攝影機
+    fontFace = cv2.FONT_HERSHEY_SIMPLEX  # 印出文字的字型
+    lineType = cv2.LINE_AA               # 印出文字的邊框
+
+    # mediapipe 啟用偵測手掌
+    with mp_hands.Hands(
+        model_complexity=0,
+        min_detection_confidence=0.5,
+        min_tracking_confidence=0.5) as hands:
+
+        if not cap.isOpened():
+            print("Cannot open camera")
+            exit()
+        w, h = 540, 310                                  # 影像尺寸
+        while True:
+            ret, img = cap.read()
+            img = cv2.resize(img, (w,h))                 # 縮小尺寸，加快處理效率
+            if not ret:
+                print("Cannot receive frame")
+                break
+            [img2] = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # 轉換成 RGB 色彩
+            results = hands.process(img2)                # 偵測手勢
+
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    finger_points = []                   # 記錄手指節點座標的串列
+                    for i in hand_landmarks.landmark:
+                        thumb_tip_x = i[mp.solutions.hands.HandLandmark.THUMB_TIP].x
+                        # 將 21 個節點換算成座標，記錄到 finger_points
+                        x = i.x*w
+                        y = i.y*h
+                        finger_points.append((x,y))
+                    if finger_points:
+                        finger_angle = hand_angle(finger_points) # 計算手指角度，回傳長度為 5 的串列
+                        #print(finger_angle)                     # 印出角度 ( 有需要就開啟註解 )
+                        text = hand_pos(finger_angle)            # 取得手勢所回傳的內容
+                        cv2.putText(img, text, (30,120), fontFace, 5, (255,255,255), 10, lineType) # 印出文字
+
+            cv2.imshow('oxxostudio', img)
+            if cv2.waitKey(5) == ord('q'):
+                break
+    cap.release()
+    cv2.destroyAllWindows()
+#############################################
+
+
+# 启动语音识别线程
+threading.Thread(target=voice_recognition, daemon=True).start()
+
+# # 启动语音识别线程
+# threading.Thread(target=hand_recognition, daemon=True).start()
 
 WIDTH = 640
 HEIGHT = 480
@@ -155,6 +258,15 @@ game_over_img = pygame.image.load(os.path.join(img_folder, '聖誕快樂gameover
 game_over_img = pygame.transform.scale(game_over_img, (WIDTH, HEIGHT))  # 調整圖片大小以適應螢幕
 
 while game_run:
+    if text =='左邊'or text =='左左左' or text =='左左左左':
+        player.move_left()
+    if text =='右邊'or text =='右'or text =='右右右右'or text =='右右右':
+        player.move_right()
+    if text =='發射' or text =='發' or text =='射'or text =='發射發射' :
+        text = ''
+        position = player.get_position()
+        for i in range(10):   
+            MISSILES.append(Missile(position[0], position[1]+i*10))
     if enemy.health <= 0:
         while True:
             screen.blit(merry_christmas_img, (0, 0))  # 顯示遊戲結束的圖片
@@ -200,7 +312,7 @@ while game_run:
         if event.type == pygame.QUIT:
             game_run = False
         if event.type == pygame.KEYDOWN:
-            if keys[pygame.K_LEFT] or event.key == pygame.K_LEFT:
+            if keys[pygame.K_LEFT] or event.key == pygame.K_LEFT :
                 player.move_left()
             if keys[pygame.K_RIGHT] or event.key == pygame.K_RIGHT:
                 player.move_right()
@@ -220,10 +332,6 @@ while game_run:
     # 繪製敵人
     screen.blit(enemy.image, enemy.rect)
 
-    
-
-
-            
     
     
     player.draw_health_bar(screen, player.rect.x-10, player.rect.y-10, player.health)  # 玩家血條
@@ -248,11 +356,42 @@ while game_run:
                 
 
 
-
-
-
-
     all_sprites.draw(screen)
     pygame.display.flip()
 
+
+
+
+
+
 pygame.quit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
