@@ -7,7 +7,6 @@ from Enemy import  Enemy
 from Enemy import  Bullet
 import paho.mqtt.client as mqtt
 import threading
-import jieba
 import cv2
 import mediapipe as mp
 import math
@@ -79,9 +78,9 @@ def hand_pos(finger_angle):
     if f1<50 and f2>=50 and f3>=50 and f4>=50 and f5>=50:
         return 'launch'
     elif f1>=50 and f2<50 and f3>=50 and f4>=50 and f5>=50:
-        return 'right'
-    elif f1>=50 and f2<50 and f3<50 and f4>=50 and f5>=50:
         return 'left'
+    elif f1>=50 and f2<50 and f3<50 and f4>=50 and f5>=50:
+        return 'right'
     elif f1<50 and f2<50 and f3<50 and f4<50 and f5<50:
         return 'Stop'
     else:
@@ -130,50 +129,18 @@ def hand_recognition():
     cap.release()
     cv2.destroyAllWindows()
 
-def voice_translate(r,audio,stopwords,coding_syntax,learning_environment,project_assignment):
-    global text
-    # 修改使用jieba進行斷詞的函數
-    def cut_words(sentence):
-        return jieba.cut(sentence, cut_all=False)
-    def calc_classification(word_sentence_list):
-        ret_cs = []
-        ret_le = []
-        ret_pa = []
-        other = []
-        for word in word_sentence_list:
-            if word not in stopwords:
-                ### eliminate stopsword
-                if word in coding_syntax:
-                    ret_cs.append(word)
-                elif word in learning_environment:
-                    ret_le.append(word)
-                elif word in project_assignment:
-                    ret_pa.append(word)
-                else:
-                    other.append(word)
-            
-        return ret_cs , ret_le , ret_pa , other
+def voice_translate(r,audio):
+    global text, should_continue
     try:
         # 在新线程中进行语音识别
         print('開始翻譯.....')
-        text = r.recognize_google(audio, language='zh-TW')
-        print('结果：', text)
-        # 这里可以添加更多处理识别结果的逻辑
-                        
-                
-        cs, le, pa, ot = calc_classification(list(cut_words(text)))
-                
-        print('原句：', text)
-        print('coding_syntax:', cs)
-        print('learning_environment:', le)
-        print('project_assignment:', pa)
-        print('其他詞語:', ot)
-                
+        translate = r.recognize_google(audio, language='zh-TW')          
+        print('原句：', translate)
+        text = translate
         clear_counter += 1
         if clear_counter == 10:
             clear_counter = 0
-            os.system('clear')
-                
+            os.system('clear')         
         if '退出' in text:
             should_continue = False  # 更新变量来通知主循环停止
 
@@ -181,56 +148,11 @@ def voice_translate(r,audio,stopwords,coding_syntax,learning_environment,project
         print('Error:', e)
 
 def voice_recognition():
-    global text
     import csv
     import os
     import sys
-    import jieba
     import speech_recognition as sr
 
-    # Read ontology_words from CSV file
-    coding_syntax = []
-    learning_environment = []
-    project_assignment = []
-    all_words_for_jieba = []
-
-    #close system warning
-    os.close(sys.stderr.fileno())
-
-    first_row = False
-    with open('ontology_words.csv','r',encoding="utf-8-sig") as f:
-        reader = csv.reader(f)
-        for row in reader:
-            if(first_row):
-                if(row[0] != ''):
-                    coding_syntax.append(row[0])
-                if(row[1] != ''):
-                    learning_environment.append(row[1])
-                if(row[2] != ''):
-                    project_assignment.append(row[2])
-            if(first_row == False):
-                first_row = True
-                
-    print('coding_syntax：' + str(len(coding_syntax)) ,
-        '\nlearning_environment：' + str(len(learning_environment)) , 
-        '\nproject_assignment：' + str(len(project_assignment)))
-
-    # 將 ontology 的詞加入 jieba 的字典
-    for word in all_words_for_jieba:
-        jieba.add_word(word, freq=100)
-
-
-
-    # Read stop words
-    stopwords = []
-    file = open('stop_word.txt', encoding='utf-8-sig').readlines()   
-    for lines in file:
-        stopwords.append(lines.strip())
-    print('stopwords讀取完成一共'+ str(len(stopwords)) + '筆')
-
-    
-
-    #from IPython.display import clear_output  ##用來清理一下output
     clear_counter = 0
     r = sr.Recognizer()
 
@@ -240,9 +162,7 @@ def voice_recognition():
                 print('請開始說話')
                 r.adjust_for_ambient_noise(source)
                 audio = r.listen(source, phrase_time_limit=1)
-                threading.Thread(target=voice_translate, args=(r,audio,stopwords,coding_syntax,learning_environment,project_assignment), daemon=True).start()
-                print('Global原句：', text)
-
+                threading.Thread(target=voice_translate, args=(r,audio), daemon=True).start()
         except:
             print('Error!')
             clear_counter += 1

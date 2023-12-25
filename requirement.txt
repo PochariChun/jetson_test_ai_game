@@ -1,0 +1,4 @@
+pygame==2.0.1
+paho-mqtt==1.5.1
+opencv-python==4.5.3.56
+
