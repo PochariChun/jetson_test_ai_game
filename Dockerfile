@@ -20,7 +20,7 @@ RUN apt-get update && \
     || true
 
 # Install pip
-RUN python3.8 -m pip install --upgrade pip || true
+RUN python3.9.6 -m pip install --upgrade pip || true
 
 # Install required Python packages
 RUN python3 -m pip install \
@@ -28,7 +28,7 @@ RUN python3 -m pip install \
     mediapipe \
     opencv-python-headless \
     paho-mqtt \
-    torchvision \
+    SpeechRecognition \
     || true
 
 # Alias 'python' to 'python3' and 'pip' to 'pip3'
@@ -47,4 +47,4 @@ VOLUME /tmp/.X11-unix
 CMD ["bash"] || true
 
 # Add a version label
-LABEL version="1.2"
+LABEL version="1.9"
