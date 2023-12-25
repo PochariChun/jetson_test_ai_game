@@ -51,7 +51,7 @@ xhost +
 This will start a container with jieba, paho-mqtt, and the necessary aliases already set up.
 
 # game client
-![game](https://github.com/namoaton/jetson_test_ai_game/raw/main/images/game.png)
+![game](https://github.com/PochariChun/jetson_test_ai_game/raw/main/images/game.png)
 <br>Before run game client you need to  install `pygame` and `paho-mqtt` modules
 ```
 pip3 install pygame
