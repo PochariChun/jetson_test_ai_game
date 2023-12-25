@@ -51,7 +51,7 @@ xhost +
 This will start a container with jieba, paho-mqtt, and the necessary aliases already set up.
 
 # game client
-![game](https://github.com/PochariChun/jetson_test_ai_game/raw/main/images/game.png)
+![game](https://github.com/PochariChun/jetson_test_ai_game/tree/dev1/images/game.png)
 <br>Before run game client you need to  install `pygame` and `paho-mqtt` modules
 ```
 pip3 install pygame
@@ -76,8 +76,7 @@ python3 main.py
 # How to play
 After start main.py on laptop and start jetson server part you can play.
 Show to jetson nano camera hand with this signs:
-* move left <br>![move_left](https://github.com/namoaton/jetson_test_ai_game/raw/main/images/move_left.jpg)
-* move right <br>![move_right](https://github.com/namoaton/jetson_test_ai_game/raw/main/images/move_right.jpg)
-* stop<br>![stop](https://github.com/namoaton/jetson_test_ai_game/raw/main/images/stop.jpg)
-* launch missile <br>![launch_missile](https://github.com/namoaton/jetson_test_ai_game/raw/main/images/launch_missile.jpg)
+* move left <br>![move_left](https://github.com/PochariChun/jetson_test_ai_game/tree/dev1/images/move_left.jpg)
+* move right <br>![move_right](https://github.com/PochariChun/jetson_test_ai_game/raw/main/images/move_right.jpg)
+* launch missile <br>![launch_missile](https://github.com/PochariChun/jetson_test_ai_game/raw/main/images/launch_missile.jpg)
 
